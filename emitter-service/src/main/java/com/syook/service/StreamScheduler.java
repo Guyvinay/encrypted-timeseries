@@ -1,7 +1,7 @@
 package com.syook.service;
 
-import com.syook.utility.EmitterProperties;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -13,26 +13,25 @@ import java.util.StringJoiner;
 public class StreamScheduler {
 
     private final SocketClient socketClient;
-    private final EmitterProperties props;
+
+    @Value("${emitter.batch.min}")
+    private int batchMin;
+
+    @Value("${emitter.batch.max}")
+    private int batchMax;
+
 
     private final Random random = new Random();
 
-    public StreamScheduler(
-            SocketClient socketClient,
-            EmitterProperties props
-    ) {
+    public StreamScheduler(SocketClient socketClient) {
         this.socketClient = socketClient;
-        this.props = props;
     }
 
     @Scheduled(fixedRateString = "${emitter.schedule.rate-ms}")
     public void emit() {
 
         int count =
-                random.nextInt(
-                        props.getBatch().getMax() -
-                                props.getBatch().getMin()
-                ) + props.getBatch().getMin();
+                random.nextInt(batchMax - batchMin) + batchMin;
 
         StringJoiner joiner = new StringJoiner("|");
 

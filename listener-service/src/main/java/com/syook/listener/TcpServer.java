@@ -2,48 +2,58 @@ package com.syook.listener;
 
 import com.syook.service.ClientHandler;
 import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.Executor;
 
+@Slf4j
 @Component
 public class TcpServer {
 
     @Value("${listener.socket.port}")
     private int port;
 
-//    private final MessageProcessorService processorService;
+    @Autowired
+    @Qualifier("tcpAcceptExecutor")
+    private Executor acceptExecutor;
 
-    private final ExecutorService pool =
-            Executors.newFixedThreadPool(10);
+    @Autowired
+    @Qualifier("tcpWorkerExecutor")
+    private Executor workerExecutor;
 
-//    public TcpServer(MessageProcessorService processorService) {
-//        this.processorService = processorService;
-//    }
+    private volatile boolean isRunning = true;
+
+    private ServerSocket serverSocket;
 
     @PostConstruct
     public void start() {
+        acceptExecutor.execute(()-> {
+            try {
+                serverSocket = new ServerSocket(port);
 
-        new Thread(() -> {
-
-            try (ServerSocket serverSocket =
-                         new ServerSocket(port)) {
-
-                System.out.println("Listener started on port " + port);
-
-                while (true) {
+                while (isRunning) {
                     Socket socket = serverSocket.accept();
-                    pool.submit(new ClientHandler(socket));
+                    workerExecutor.execute(new ClientHandler(socket));
                 }
 
             } catch (Exception e) {
-                throw new RuntimeException(e);
+                log.error("TCP crashed", e);
             }
+        });
+    }
 
-        }).start();
+    @PreDestroy
+    public void shutdown() throws IOException {
+        log.info("TCP Server shutting down");
+        isRunning = false;
+        serverSocket.close();
     }
 }
