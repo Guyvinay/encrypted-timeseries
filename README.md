@@ -66,7 +66,7 @@ Required ports:
 | Port | Purpose |
 |------|---------|
 | 5432 | PostgreSQL |
-| 8082 | Listener REST API |
+| 8080 | Listener REST API |
 | 9000 | Listener TCP Socket Server |
 
 ---
@@ -76,8 +76,8 @@ Required ports:
 ## Step 1 — Clone Repository
 
 ```bash
-git clone <your-repo-url>
-cd <project-root>
+git clone git@github.com:Guyvinay/encrypted-timeseries.git
+cd encrypted-timeseries
 docker-compose build
 docker-compose up -d
 docker ps
