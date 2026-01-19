@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>com.syook</groupId>
 	<artifactId>listener-service</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>1.0.0</version>
 	<name>listener-service</name>
 	<description>Spring boot project that listenes the events emitted by emitter-service and stores in timeseries</description>
 	<properties>
