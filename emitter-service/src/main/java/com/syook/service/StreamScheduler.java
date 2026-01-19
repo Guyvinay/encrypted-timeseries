@@ -48,8 +48,8 @@ public class StreamScheduler {
 
         String stream = joiner.toString() + "\n";
 
-        log.info("Emit batch size: {}", count);
         socketClient.send(stream);
+        log.info("Emit batch size: {}", count);
 
     }
 }

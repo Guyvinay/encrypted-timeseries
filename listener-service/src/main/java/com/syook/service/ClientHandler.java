@@ -10,13 +10,18 @@ import java.net.Socket;
 public class ClientHandler implements Runnable {
 
     private final Socket socket;
+    private final MessageProcessorService messageProcessorService;
 
-    public ClientHandler(Socket socket) {
+
+    public ClientHandler(Socket socket, MessageProcessorService messageProcessorService) {
         this.socket = socket;
+        this.messageProcessorService = messageProcessorService;
     }
 
     @Override
     public void run() {
+
+        log.info("Client handler thread started");
 
         try (BufferedReader reader =
                      new BufferedReader(
@@ -26,7 +31,9 @@ public class ClientHandler implements Runnable {
                      )) {
 
             String line = reader.readLine();
-            log.info("Received payload from socket: {}" , line);
+            log.info("Received raw stream length={}", line.length());
+            messageProcessorService.process(line);
+            log.info("Stream processing completed successfully");
 
         } catch (Exception e) {
             log.error("Client error: {}", e.getMessage());

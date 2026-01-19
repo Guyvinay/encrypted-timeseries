@@ -1,6 +1,7 @@
 package com.syook.listener;
 
 import com.syook.service.ClientHandler;
+import com.syook.service.MessageProcessorService;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import lombok.extern.slf4j.Slf4j;
@@ -29,6 +30,10 @@ public class TcpServer {
     @Qualifier("tcpWorkerExecutor")
     private Executor workerExecutor;
 
+    @Autowired
+    private MessageProcessorService messageProcessorService;
+
+
     private volatile boolean isRunning = true;
 
     private ServerSocket serverSocket;
@@ -41,7 +46,7 @@ public class TcpServer {
 
                 while (isRunning) {
                     Socket socket = serverSocket.accept();
-                    workerExecutor.execute(new ClientHandler(socket));
+                    workerExecutor.execute(new ClientHandler(socket, messageProcessorService));
                 }
 
             } catch (Exception e) {
