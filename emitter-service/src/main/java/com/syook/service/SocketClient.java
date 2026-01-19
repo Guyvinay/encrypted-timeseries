@@ -23,7 +23,7 @@ public class SocketClient {
         try (Socket socket = new Socket(socketHost, socketPort)) {
 
             OutputStream out = socket.getOutputStream();
-            log.info("sending payload over socket: {}", payload);
+            log.info("sending payload over socket.");
             out.write(payload.getBytes(StandardCharsets.UTF_8));
             out.flush();
 
